@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수행평가 & 시간표 스마트 플래너</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#FCF8F9',
+                            card: '#FFFFFF',
+                            primary: '#FF8EA4',
+                            primaryHover: '#FF758F',
+                            light: '#FFF0F3',
+                            accent: '#FFB6C1',
+                            dark: '#2D3748',
+                            gray: '#718096',
+                            border: '#F2E8EB'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FCF8F9;
+            font-family: 'Pretendard', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for modern feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FCF8F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFD1DC;
+            border-radius: 10px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .soft-shadow {
+            box-shadow: 0 10px 30px -5px rgba(255, 142, 164, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="text-brand-dark min-h-screen pb-20">
+
+    <header class="sticky top-0 z-30 glass-card border-b border-brand-border px-4 py-3 sm:px-8">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-9 h-9 rounded-2xl bg-brand-primary flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-primary/30">
+                    ✨
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-slate-800">수행평가 플래너</h1>
+                    <p class="text-[11px] text-brand-gray font-medium">스마트 시간표 & AI 학습 보조</p>
+                </div>
+            </div>
+            
+            <!-- Tab Navigation Buttons -->
+            <nav class="flex gap-1 bg-brand-bg p-1 rounded-2xl border border-brand-border">
+                <button id="nav-home" onclick="switchTab('home')" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-brand-primary shadow-sm">
+                    🏠 홈
+                </button>
+                <button id="nav-timetable" onclick="switchTab('timetable')" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-brand-gray hover:text-slate-800 transition-all duration-200">
+                    📅 시간표
+                </button>
+                <button id="nav-ai" onclick="switchTab('ai')" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-brand-gray hover:text-slate-800 transition-all duration-200 flex items-center gap-1">
+                    🤖 AI 보조
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-6 sm:px-8">
+        
+        <!-- SECTION 1: HOME TAB -->
+        <section id="tab-home" class="space-y-6">
+            
+            <!-- Quick Action Hero Section -->
+            <div class="bg-gradient-to-br from-brand-light via-white to-white rounded-3xl p-6 sm:p-8 border border-brand-border soft-shadow relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="relative z-10">
+                    <span class="inline-block px-3 py-1 bg-brand-primary/10 text-brand-primary text-xs font-bold rounded-full mb-3">Today Focus</span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">체계적인 수행평가 관리,<br><span class="text-brand-primary">AI 스터디 파트너</span>와 함께하세요!</h2>
+                    <p class="text-xs sm:text-sm text-brand-gray mb-6">시간표 등록부터 임박한 D-Day 관리, AI 맞춤 가이드까지 제공합니다.</p>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openTaskModal()" class="flex-1 sm:flex-initial px-6 py-3.5 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-2xl font-bold text-sm shadow-lg shadow-brand-primary/30 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                            <span>➕</span> 일정 추가하기
+                        </button>
+                        <button onclick="switchTab('timetable')" class="px-4 py-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-brand-border rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-1.5">
+                            📅 시간표 보기
+                        </button>
+                        <button onclick="switchTab('ai')" class="px-4 py-3.5 bg-brand-light hover:bg-brand-accent/20 text-brand-primary rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-1.5">
+                            🤖 AI 코칭 받기
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List Header -->
+            <div class="flex items-center justify-between pt-2">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">다가오는 수행평가</h3>
+                    <p class="text-xs text-brand-gray">마감일이 다가오는 순서대로 자동 정렬됩니다.</p>
+                </div>
+                <span id="task-count-badge" class="px-3 py-1 bg-brand-light text-brand-primary rounded-full text-xs font-bold">0개</span>
+            </div>
+
+            <!-- Task Cards Grid -->
+            <div id="task-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Dynamic Task Cards Rendered Here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-3xl border border-dashed border-brand-border">
+                <div class="text-4xl mb-3">📝</div>
+                <h4 class="font-bold text-slate-700 text-base mb-1">등록된 수행평가가 없습니다.</h4>
+                <p class="text-xs text-brand-gray mb-4">새로운 수행평가 일정을 추가하고 체계적으로 준비해보세요!</p>
+                <button onclick="openTaskModal()" class="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl shadow-md">일정 추가하기</button>
+            </div>
+
+        </section>
+
+        <!-- SECTION 2: TIMETABLE TAB -->
+        <section id="tab-timetable" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-6 rounded-3xl border border-brand-border soft-shadow">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">5x7 주간 시간표</h3>
+                    <p class="text-xs text-brand-gray">월~금요일 1~7교시 과목을 설정하세요. AI 가이드에도 연동됩니다.</p>
+                </div>
+                <button onclick="saveTimetable()" class="px-5 py-2.5 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-xl font-bold text-xs shadow-md shadow-brand-primary/20 transition-all flex items-center justify-center gap-1 self-start sm:self-auto">
+                    💾 시간표 저장하기
+                </button>
+            </div>
+
+            <div class="bg-white p-4 sm:p-6 rounded-3xl border border-brand-border soft-shadow overflow-x-auto">
+                <table class="w-full min-w-[500px] border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="p-2.5 text-center text-xs font-bold text-brand-gray bg-brand-bg rounded-l-xl w-16">교시</th>
+                            <th class="p-2.5 text-center text-xs font-bold text-slate-700 bg-brand-bg">월</th>
+                            <th class="p-2.5 text-center text-xs font-bold text-slate-700 bg-brand-bg">화</th>
+                            <th class="p-2.5 text-center text-xs font-bold text-slate-700 bg-brand-bg">수</th>
+                            <th class="p-2.5 text-center text-xs font-bold text-slate-700 bg-brand-bg">목</th>
+                            <th class="p-2.5 text-center text-xs font-bold text-slate-700 bg-brand-bg rounded-r-xl">금</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body">
+                        <!-- Dynamic Timetable Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 3: GEMINI AI HELPER TAB -->
+        <section id="tab-ai" class="hidden space-y-4">
+            <div class="bg-white p-6 rounded-3xl border border-brand-border soft-shadow">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="p-2 bg-brand-light rounded-2xl text-xl">🤖</span>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Gemini AI 스마트 학습 보조</h3>
+                        <p class="text-xs text-brand-gray">등록한 시간표 & 수행평가 데이터를 기반으로 개인 맞춤형 코칭을 제공합니다.</p>
+                    </div>
+                </div>
+
+                <!-- Recommendation Chips -->
+                <div class="mt-4 pt-3 border-t border-slate-100">
+                    <p class="text-xs font-semibold text-slate-500 mb-2">💡 빠른 추천 질문</p>
+                    <div class="flex flex-wrap gap-2" id="ai-suggestion-chips">
+                        <!-- Dynamic Suggestion Chips -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Chat Display Area -->
+            <div id="chat-container" class="bg-white rounded-3xl border border-brand-border soft-shadow p-4 sm:p-6 min-h-[380px] max-h-[500px] overflow-y-auto space-y-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                    <div class="bg-brand-light text-slate-800 text-xs sm:text-sm p-4 rounded-2xl rounded-tl-none max-w-[85%] leading-relaxed">
+                        안녕하세요! 학생분의 수행평가 개요 작성, 발표 자료 구성, 서술형 대비 및 시간표 기반 공부 계획 생성을 도와드리는 AI 스터디 파트너입니다. 궁금한 점을 질문해 보세요! ✨
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Input Controls -->
+            <div class="flex gap-2">
+                <input type="text" id="ai-input" onkeypress="handleAiKeyPress(event)" placeholder="수행평가 주제나 질문을 입력하세요..." class="flex-1 px-4 py-3.5 bg-white border border-brand-border rounded-2xl text-xs sm:text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-light transition-all">
+                <button onclick="sendAiMessage()" id="ai-send-btn" class="px-6 py-3.5 bg-brand-primary hover:bg-brand-primaryHover text-white text-xs sm:text-sm font-bold rounded-2xl shadow-md shadow-brand-primary/20 transition-all shrink-0 flex items-center gap-1">
+                    <span>전송</span> 🚀
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="task-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 border border-brand-border soft-shadow animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center mb-5">
+                <h3 id="modal-title" class="text-lg font-bold text-slate-800">수행평가 일정 추가</h3>
+                <button onclick="closeTaskModal()" class="text-brand-gray hover:text-slate-800 text-lg">✕</button>
+            </div>
+            
+            <form id="task-form" onsubmit="saveTask(event)" class="space-y-4">
+                <input type="hidden" id="task-id">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">과목명</label>
+                    <input type="text" id="task-subject" required placeholder="예: 국어, 수학, 영어" class="w-full px-4 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-primary">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">수행평가 제목</label>
+                    <input type="text" id="task-title" required placeholder="예: 현대시 분석 보고서 제출" class="w-full px-4 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-primary">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">마감일</label>
+                        <input type="date" id="task-date" required class="w-full px-3 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">유형</label>
+                        <select id="task-type" class="w-full px-3 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-primary">
+                            <option value="보고서">📄 보고서</option>
+                            <option value="발표">🎤 발표</option>
+                            <option value="서술형/지필">✏️ 서술형/지필</option>
+                            <option value="포트폴리오">📁 포트폴리오</option>
+                            <option value="기타">📌 기타</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">세부 내용 및 메모</label>
+                    <textarea id="task-memo" rows="3" placeholder="평가 기준, 준비물, 조원 정보 등 메모" class="w-full px-4 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-primary resize-none"></textarea>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeTaskModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs">취소</button>
+                    <button type="submit" class="flex-1 py-3 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-xl font-bold text-xs shadow-md shadow-brand-primary/20">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="welcome-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center border border-brand-border soft-shadow">
+            <div class="w-16 h-16 bg-brand-light text-brand-primary text-3xl rounded-3xl flex items-center justify-center mx-auto mb-4">
+                👋
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2">처음 방문을 환영합니다!</h3>
+            <p class="text-xs text-brand-gray leading-relaxed mb-6">
+                주간 시간표를 설정해두시면 AI 학습 보조 기능에서 더욱 맞춤화된 과목별 도움 및 스케줄링 가이드를 받을 수 있습니다.
+            </p>
+            <div class="space-y-2">
+                <button onclick="closeWelcomeAndGoTimetable()" class="w-full py-3 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-xl font-bold text-xs shadow-md shadow-brand-primary/30">
+                    📅 시간표 입력하러 가기
+                </button>
+                <button onclick="closeWelcomeModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-semibold text-xs">
+                    나중에 설정하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data State Store
+        let tasks = [];
+        let timetable = Array(7).fill(null).map(() => Array(5).fill(''));
+        
+        // Initializer
+        window.onload = function() {
+            loadData();
+            renderTasks();
+            renderTimetable();
+            checkFirstVisit();
+            updateAiSuggestions();
+        };
+
+        // --- LOCAL STORAGE DATA MANAGERS ---
+        function loadData() {
+            const savedTasks = localStorage.getItem('planner_tasks');
+            if (savedTasks) {
+                try { tasks = JSON.parse(savedTasks); } catch(e) { tasks = []; }
+            }
+            
+            const savedTimetable = localStorage.getItem('planner_timetable');
+            if (savedTimetable) {
+                try { timetable = JSON.parse(savedTimetable); } catch(e) { }
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('planner_tasks', JSON.stringify(tasks));
+            localStorage.setItem('planner_timetable', JSON.stringify(timetable));
+            updateAiSuggestions();
+        }
+
+        function checkFirstVisit() {
+            const hasVisited = localStorage.getItem('planner_visited');
+            if (!hasVisited) {
+                document.getElementById('welcome-modal').classList.remove('hidden');
+                localStorage.setItem('planner_visited', 'true');
+            }
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').classList.add('hidden');
+        }
+
+        function closeWelcomeAndGoTimetable() {
+            closeWelcomeModal();
+            switchTab('timetable');
+        }
+
+        // --- TAB NAVIGATION ---
+        function switchTab(tab) {
+            ['home', 'timetable', 'ai'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`nav-${t}`);
+                btn.className = "px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-brand-gray hover:text-slate-800";
+            });
+
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            activeBtn.className = "px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-brand-primary shadow-sm";
+        }
+
+        // --- TASK MANAGEMENT (CRUD & D-DAY SORTING) ---
+        function calculateDDay(dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const target = new Date(dateStr);
+            target.setHours(0, 0, 0, 0);
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return { text: 'D-Day', cls: 'bg-red-500 text-white font-black' };
+            if (diffDays < 0) return { text: `D+${Math.abs(diffDays)}`, cls: 'bg-gray-400 text-white' };
+            if (diffDays <= 3) return { text: `D-${diffDays}`, cls: 'bg-brand-primary text-white font-bold' };
+            return { text: `D-${diffDays}`, cls: 'bg-brand-light text-brand-primary font-bold' };
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            const emptyState = document.getElementById('empty-state');
+            const badge = document.getElementById('task-count-badge');
+            
+            container.innerHTML = '';
+            badge.textContent = `${tasks.length}개`;
+
+            if (tasks.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Sort by nearest D-Day
+            const sortedTasks = [...tasks].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            sortedTasks.forEach(task => {
+                const dday = calculateDDay(task.date);
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-3xl border border-brand-border soft-shadow transition-all hover:border-brand-accent flex flex-col justify-between";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-2.5 py-1 rounded-xl text-xs ${dday.cls}">${dday.text}</span>
+                            <div class="flex gap-1 text-sm">
+                                <button onclick="editTask('${task.id}')" title="수정" class="p-1 hover:bg-brand-light rounded-lg transition-all">✏️</button>
+                                <button onclick="deleteTask('${task.id}')" title="삭제" class="p-1 hover:bg-red-50 rounded-lg transition-all">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="text-xs font-bold text-brand-primary mb-1">[${escapeHtml(task.subject)}] · ${escapeHtml(task.type)}</div>
+                        <h4 class="font-bold text-slate-800 text-base mb-2">${escapeHtml(task.title)}</h4>
+                        ${task.memo ? `<p class="text-xs text-brand-gray bg-brand-bg p-2.5 rounded-xl mb-3 leading-relaxed whitespace-pre-wrap">${escapeHtml(task.memo)}</p>` : ''}
+                    </div>
+                    <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-50 pt-3">
+                        <span>📅 마감일: ${task.date}</span>
+                        <button onclick="askAiAboutTask('${escapeHtml(task.subject)}', '${escapeHtml(task.title)}', '${escapeHtml(task.type)}')" class="text-brand-primary font-bold hover:underline">AI 코칭 요청 ➔</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openTaskModal(taskId = null) {
+            const modal = document.getElementById('task-modal');
+            const form = document.getElementById('task-form');
+            form.reset();
+            
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('modal-title').textContent = "수행평가 일정 수정";
+                    document.getElementById('task-id').value = task.id;
+                    document.getElementById('task-subject').value = task.subject;
+                    document.getElementById('task-title').value = task.title;
+                    document.getElementById('task-date').value = task.date;
+                    document.getElementById('task-type').value = task.type;
+                    document.getElementById('task-memo').value = task.memo || '';
+                }
+            } else {
+                document.getElementById('modal-title').textContent = "수행평가 일정 추가";
+                document.getElementById('task-id').value = '';
+                // Default date to tomorrow
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('task-date').value = tomorrow.toISOString().split('T')[0];
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('task-modal').classList.add('hidden');
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const id = document.getElementById('task-id').value;
+            const subject = document.getElementById('task-subject').value.trim();
+            const title = document.getElementById('task-title').value.trim();
+            const date = document.getElementById('task-date').value;
+            const type = document.getElementById('task-type').value;
+            const memo = document.getElementById('task-memo').value.trim();
+
+            if (id) {
+                const index = tasks.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    tasks[index] = { id, subject, title, date, type, memo };
+                }
+            } else {
+                tasks.push({
+                    id: Date.now().toString(),
+                    subject,
+                    title,
+                    date,
+                    type,
+                    memo
+                });
+            }
+
+            saveData();
+            renderTasks();
+            closeTaskModal();
+        }
+
+        function editTask(id) {
+            openTaskModal(id);
+        }
+
+        function deleteTask(id) {
+            if (confirm('정말 이 수행평가 항목을 삭제하시겠습니까?')) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveData();
+                renderTasks();
+            }
+        }
+
+        // --- TIMETABLE MANAGERS ---
+        function renderTimetable() {
+            const tbody = document.getElementById('timetable-body');
+            tbody.innerHTML = '';
+
+            for (let period = 0; period < 7; period++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-2 text-center text-xs font-bold text-brand-gray bg-brand-bg rounded-xl">${period + 1}교시</td>`;
+                
+                for (let day = 0; day < 5; day++) {
+                    const value = timetable[period][day] || '';
+                    tr.innerHTML += `
+                        <td class="p-1">
+                            <input type="text" value="${escapeHtml(value)}" data-period="${period}" data-day="${day}" onchange="updateTimetableCell(${period}, ${day}, this.value)" placeholder="과목" class="w-full text-center px-1 py-2 rounded-xl border border-brand-border text-xs focus:border-brand-primary focus:outline-none focus:bg-brand-light/30">
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            }
+        }
+
+        function updateTimetableCell(period, day, val) {
+            timetable[period][day] = val.trim();
+        }
+
+        function saveTimetable() {
+            saveData();
+            alert('시간표가 성공적으로 저장되었습니다!');
+        }
+
+        // --- GEMINI AI STUDY HELPER (GEMINI 2.5 FLASH) ---
+        function updateAiSuggestions() {
+            const chipContainer = document.getElementById('ai-suggestion-chips');
+            chipContainer.innerHTML = '';
+
+            let suggestions = [
+                "🗓️ 이번 주 수행평가 준비 전략을 짜줘",
+                "✍️ 효율적인 수행평가 보고서 개요 작성 팁"
+            ];
+
+            if (tasks.length > 0) {
+                const nearest = [...tasks].sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+                suggestions.unshift(`📝 [${nearest.subject}] ${nearest.title} 가이드 작성해줘`);
+            }
+
+            suggestions.forEach(text => {
+                const chip = document.createElement('button');
+                chip.className = "px-3 py-1.5 bg-brand-light hover:bg-brand-accent/30 text-brand-primary text-xs font-semibold rounded-xl transition-all text-left";
+                chip.textContent = text;
+                chip.onclick = () => {
+                    document.getElementById('ai-input').value = text.replace(/^[^a-zA-Z0-9가-힣]+/, '').trim();
+                    sendAiMessage();
+                };
+                chipContainer.appendChild(chip);
+            });
+        }
+
+        function askAiAboutTask(subject, title, type) {
+            switchTab('ai');
+            const query = `[${subject}] "${title}" (${type}) 수행평가를 준비하려 합니다. 구체적인 개요 작성 틀과 준비 단계를 알려주세요!`;
+            document.getElementById('ai-input').value = query;
+            sendAiMessage();
+        }
+
+        function handleAiKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendAiMessage();
+            }
+        }
+
+        async function sendAiMessage() {
+            const input = document.getElementById('ai-input');
+            const promptText = input.value.trim();
+            if (!promptText) return;
+
+            const chatContainer = document.getElementById('chat-container');
+            const sendBtn = document.getElementById('ai-send-btn');
+
+            // 1. Render User Message
+            appendMessage('user', promptText);
+            input.value = '';
+            sendBtn.disabled = true;
+
+            // 2. Render Loading State for AI
+            const loadingId = 'ai-loading-' + Date.now();
+            appendLoading(loadingId);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // 3. Prepare Context From Timetable & Tasks
+            const contextText = `
+[현재 등록된 수행평가 목록]
+${tasks.map(t => `- 과목: ${t.subject}, 제목: ${t.title}, 마감일: ${t.date}, 유형: ${t.type}, 메모: ${t.memo || '없음'}`).join('\n') || '등록된 수행평가 없음'}
+
+[학생의 주간 시간표(월~금 1~7교시)]
+${timetable.map((p, idx) => `${idx + 1}교시: ${p.map(c => c || '빈칸').join(', ')}`).join('\n')}
+            `.trim();
+
+            const systemPrompt = `
+당신은 친절하고 스마트한 한국 고등학교/중학교 학습 보조 AI 파트너입니다.
+학생의 등록된 수행평가 및 시간표 맥락 정보를 활용하여 명확하고 실용적인 가이드라인, 보고서 개요, 발표 구성안, 서술형 시험 준비법을 제시하세요.
+응답 시 읽기 편하도록 핵심 포인트 위주로 정돈하고 이모지를 적절히 활용하세요.
+            `.trim();
+
+            const fullUserPrompt = `${contextText}\n\n[학생의 질문]: ${promptText}`;
+
+            try {
+                // Gemini 2.5 Flash API Call
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: fullUserPrompt }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                const data = await response.json();
+                removeLoading(loadingId);
+
+                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    const aiReply = data.candidates[0].content.parts[0].text;
+                    appendMessage('ai', aiReply);
+                } else {
+                    appendMessage('ai', '죄송합니다. 답변을 생성하는 중에 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                removeLoading(loadingId);
+                appendMessage('ai', '네트워크 통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                console.error(error);
+            } finally {
+                sendBtn.disabled = false;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        function appendMessage(sender, text) {
+            const chatContainer = document.getElementById('chat-container');
+            const msgDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                msgDiv.className = "flex items-start gap-3 justify-end";
+                msgDiv.innerHTML = `
+                    <div class="bg-brand-primary text-white text-xs sm:text-sm p-4 rounded-2xl rounded-tr-none max-w-[85%] leading-relaxed shadow-sm">
+                        ${escapeHtml(text)}
+                    </div>
+                `;
+            } else {
+                msgDiv.className = "flex items-start gap-3";
+                msgDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                    <div class="bg-brand-light text-slate-800 text-xs sm:text-sm p-4 rounded-2xl rounded-tl-none max-w-[85%] leading-relaxed whitespace-pre-wrap">
+                        ${formatMarkdown(text)}
+                    </div>
+                `;
+            }
+            chatContainer.appendChild(msgDiv);
+        }
+
+        function appendLoading(id) {
+            const chatContainer = document.getElementById('chat-container');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = id;
+            loadingDiv.className = "flex items-start gap-3";
+            loadingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                <div class="bg-brand-light text-slate-600 text-xs sm:text-sm p-4 rounded-2xl rounded-tl-none flex items-center gap-2">
+                    <span class="animate-pulse">✨ AI가 답변을 작성 중입니다...</span>
+                </div>
+            `;
+            chatContainer.appendChild(loadingDiv);
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        // --- UTILS ---
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function formatMarkdown(str) {
+            // Basic simple markdown text formatting (bold & list)
+            let formatted = escapeHtml(str);
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/^\*\s(.*)$/gm, '• $1');
+            return formatted;
+        }
+    </script>
+</body>
+</html>
